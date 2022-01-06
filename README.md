@@ -4,6 +4,8 @@ Some tools to observe the health of various matrix bridges.
 
 ```
 pacman -S python-flask python-waitress python-matrix-nio
+cp example-config.yaml config.yaml
+vim config.yaml
 python main.py
 ```
 
