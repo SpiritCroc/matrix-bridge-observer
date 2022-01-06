@@ -1,0 +1,133 @@
+# The account which is used for sending status updates
+notify:
+  matrix:
+    homeserver: "https://my.matrix.homeserver.com"
+    mx_id: "@bridge_observer:my.matrix.homeserver.com"
+    token: "some-auth-token"
+    room_id: "!some_room_id:my.matrix.homeserver.com"
+
+# Matrix users that are used to watch bridges
+watched_users:
+  # The section name of each user can be used to reference a user in the send_on_inactivity section of another user
+  # Following user is only used for sending messages to a bridge, which hopefully the other user will receive from the bridge
+  bridge-checker:
+    homeserver: "https://my.matrix.homeserver.com"
+    mx_id: "@bridge-checker:my.matrix.homeserver.com"
+    token: "some-auth-token"
+  # Main watched user
+  me:
+    homeserver: "https://my.matrix.homeserver.com"
+    mx_id: "@me:my.matrix.homeserver.com"
+    token: "some-auth-token"
+    # The section names in watched_bridge_ids should match the protocol id found in the room state of bridged rooms
+    # in the uk.half-shot.bridge or the m.bridge event.
+    # Rooms which have more than one bridge id assigned are ignored (unless specified in explicit_rooms)
+    # Alternatively (or in addition), explicit_rooms can be used to list the rooms which are considered bridged.
+    watched_bridge_ids:
+      telegram:
+        # Seconds of inactivity until the first alert
+        alert_after_inactivity: 86400
+        # Period in seconds for which to repeat alerts
+        alert_period: 86400
+        # Optional active mechanism to check if the bridge is still working before sending an alert
+        send_on_inactivity:
+          # Time in seconds for which we want to delay the alert once we sent a message
+          delay_alert: 10
+          # User, room and text to send before alerting for inactivity.
+          # Can be the user itself, who sends e.g. a command to a ping-bot, or a different user in a chat bridged to
+          # the currently watched user.
+          send_user: "me"
+          send_room: "!some_room_id:my.matrix.homeserver.com"
+          send_text: "/ping"
+      whatsapp:
+        alert_after_inactivity: 86400
+        alert_period: 86400
+        send_on_inactivity:
+          delay_alert: 10
+          send_user: "bridge-checker"
+          send_room: "!some_room_id:my.matrix.homeserver.com"
+          send_text: "AAAAAAAAAA"
+      slack:
+        alert_after_inactivity: 86400
+        alert_period: 86400
+      discord:
+        alert_after_inactivity: 86400
+        alert_period: 86400
+      signal:
+        alert_after_inactivity: 86400
+        alert_period: 86400
+        send_on_inactivity:
+          delay_alert: 10
+          send_user: "bridge-checker"
+          send_room: "!some_room_id:my.matrix.homeserver.com"
+          send_text: "hmpf"
+      maubot_rss:
+        alert_after_inactivity: 86400
+        alert_period: 86400
+        # If require_sender is set, only messages by this mxid will be considered.
+        # If not set, all senders except for the synced account itself will be considered.
+        require_sender: "@myrssbot:my.matrix.homeserver.com"
+        explicit_rooms:
+          - "!some_room_id:my.matrix.homeserver.com"
+          - "!some_room_id:my.matrix.homeserver.com"
+          - "!some_room_id:my.matrix.homeserver.com"
+          - "!some_room_id:my.matrix.homeserver.com"
+          - "!some_room_id:my.matrix.homeserver.com"
+      grafana:
+        alert_after_inactivity: 172800
+        alert_period: 86400
+        require_sender: "@grafana:my.matrix.homeserver.com"
+        explicit_rooms:
+          - "!some_room_id:my.matrix.homeserver.com"
+
+# Settings to use the status endpoint of some bridges
+bridge_status:
+  # The address where this script will listen for status updates
+  listen_endpoint:
+    host: "0.0.0.0"
+    port: 9566
+  bridges:
+    mautrix_whatsapp:
+      bridge_url: "http://localhost:29318"
+      hs_token: "your-bridge-registration-hs-token"
+      max_ttl: 240
+      ttl_if_unreachable: 60
+      alert_delay: 10
+      alert_period: 3600
+      users:
+        me:
+          user_id: "@me:my.matrix.homeserver.com"
+        bridge-checker:
+          user_id: "@bridge-checker:my.matrix.homeserver.com"
+    mautrix_telegram:
+      bridge_url: "http://localhost:29317"
+      hs_token: "your-bridge-registration-hs-token"
+      max_ttl: 240
+      ttl_if_unreachable: 60
+      alert_delay: 10
+      alert_period: 3600
+      users:
+        me:
+          user_id: "@me:my.matrix.homeserver.com"
+    mautrix_signal:
+      bridge_url: "http://localhost:29328"
+      hs_token: "your-bridge-registration-hs-token"
+      max_ttl: 240
+      ttl_if_unreachable: 60
+      alert_delay: 10
+      alert_period: 3600
+      users:
+        me:
+          user_id: "@me:my.matrix.homeserver.com"
+    mx_puppet_slack:
+      # mx_puppet_slack doesn't support this right now
+      #bridge_url: "http://localhost:8432"
+      hs_token: "your-bridge-registration-hs-token"
+      max_ttl: 240
+      ttl_if_unreachable: 60
+      alert_delay: 10
+      alert_period: 3600
+      users:
+        me2:
+          user_id: "@me:my.matrix.homeserver.com"
+          remote_id: "SOME-REMOTE-ID"
