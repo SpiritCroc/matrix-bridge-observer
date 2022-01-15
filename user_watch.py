@@ -124,6 +124,10 @@ class WatchedUser(BaseMatrixUser, Looper):
         else:
             # Empty fallback, in case this user is not watched, but only used for sending
             wbc = dict()
+        if "auto_mark_read_rooms" in config:
+            self.auto_mark_read_rooms = config["auto_mark_read_rooms"]
+        else:
+            self.auto_mark_read_rooms = []
         self.watched_bridge_ids = wbc.keys()
         self.bridge_states = dict()
         for x in wbc:
@@ -160,6 +164,17 @@ class WatchedUser(BaseMatrixUser, Looper):
         joins = sync_response.rooms.join
         self.log.debug(f"Handle {len(joins)} rooms")
         for room_id in joins:
+            needs_mark_as_read = False
+            if room_id in self.auto_mark_read_rooms:
+                if len(joins[room_id].timeline.events) == 0:
+                    needs_mark_as_read = True
+                else:
+                    try:
+                        latest_event = joins[room_id].timeline.events[-1].event_id
+                        self.log.debug(f"Update read marker for {room_id} to {latest_event}")
+                        await client.room_read_markers(room_id, latest_event, latest_event)
+                    except:
+                        self.log.exception("Failed to update read marker for {room_id}")
             relevant_bridge_states = []
             # Check explicit rooms (overwrite bridges):
             for bridge_state in self.bridge_states.values():
@@ -198,6 +213,14 @@ class WatchedUser(BaseMatrixUser, Looper):
                     self.log.debug(f"Backfill {room_id} ({bridge_state.bridge_id}) - {room_token}")
                     room_response = await client.room_messages(room_id, start = room_token, direction = MessageDirection.back)
                     if isinstance(room_response, RoomMessagesResponse):
+                        if needs_mark_as_read:
+                            needs_mark_as_read = False
+                            try:
+                                latest_event = room_response.chunk[0].event_id
+                                self.log.debug(f"Update read marker for {room_id} to {latest_event}")
+                                await client.room_read_markers(room_id, latest_event, latest_event)
+                            except:
+                                self.log.exception("Failed to update read marker for {room_id}")
                         # TODO does this make sense?
                         if room_response.end == room_token:
                             # Do not re-run

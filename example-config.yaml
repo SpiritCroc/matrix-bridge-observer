@@ -19,6 +19,11 @@ watched_users:
     homeserver: "https://my.matrix.homeserver.com"
     mx_id: "@me:my.matrix.homeserver.com"
     token: "some-auth-token"
+    # Rooms to always mark as "read" automatically. Useful if rooms just exist to send automated messages for testing bridges.
+    auto_mark_read_rooms:
+      - "!some_room_id:my.matrix.homeserver.com"
+      - "!some_room_id:my.matrix.homeserver.com"
+      - "!some_room_id:my.matrix.homeserver.com"
     # The section names in watched_bridge_ids should match the protocol id found in the room state of bridged rooms
     # in the uk.half-shot.bridge or the m.bridge event.
     # Rooms which have more than one bridge id assigned are ignored (unless specified in explicit_rooms)
