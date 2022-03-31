@@ -128,6 +128,10 @@ class WatchedUser(BaseMatrixUser, Looper):
             self.auto_mark_read_rooms = config["auto_mark_read_rooms"]
         else:
             self.auto_mark_read_rooms = []
+        if "auto_mark_read_rooms_without_notification" in config:
+            self.auto_mark_read_rooms_without_notification = config["auto_mark_read_rooms_without_notification"]
+        else:
+            self.auto_mark_read_rooms_without_notification = []
         self.watched_bridge_ids = wbc.keys()
         self.bridge_states = dict()
         for x in wbc:
@@ -164,8 +168,19 @@ class WatchedUser(BaseMatrixUser, Looper):
         joins = sync_response.rooms.join
         self.log.debug(f"Handle {len(joins)} rooms")
         for room_id in joins:
+            # Wants mark as read: room is in list, and has appropriate notification counts
+            # Needs mark as read: wants mark as read, but was not able to update read marker yet due to missing timeline events
+            wants_mark_as_read = False
             needs_mark_as_read = False
+            # Check if room should be marked as unread
             if room_id in self.auto_mark_read_rooms:
+                wants_mark_as_read = True
+            elif room_id in self.auto_mark_read_rooms_without_notification:
+                notifs = joins[room_id].unread_notifications
+                if notifs.notification_count == 0 and notifs.highlight_count == 0:
+                    wants_mark_as_read = True
+            # Mark room as unread if possible
+            if wants_mark_as_read:
                 if len(joins[room_id].timeline.events) == 0:
                     needs_mark_as_read = True
                 else:

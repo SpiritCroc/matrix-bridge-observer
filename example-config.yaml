@@ -24,6 +24,10 @@ watched_users:
       - "!some_room_id:my.matrix.homeserver.com"
       - "!some_room_id:my.matrix.homeserver.com"
       - "!some_room_id:my.matrix.homeserver.com"
+    # Rooms to mark as "read" automatically, if they do not have any notifications.
+    # Useful to have the update room show unread for warnings, but clear muted unread counts.
+    auto_mark_read_rooms_without_notification:
+      - "!some_room_id:my.matrix.homeserver.com"
     # The section names in watched_bridge_ids should match the protocol id found in the room state of bridged rooms
     # in the uk.half-shot.bridge or the m.bridge event.
     # Rooms which have more than one bridge id assigned are ignored (unless specified in explicit_rooms)
@@ -37,7 +41,7 @@ watched_users:
         # Optional active mechanism to check if the bridge is still working before sending an alert
         send_on_inactivity:
           # Time in seconds for which we want to delay the alert once we sent a message
-          delay_alert: 10
+          delay_alert: 20
           # User, room and text to send before alerting for inactivity.
           # Can be the user itself, who sends e.g. a command to a ping-bot, or a different user in a chat bridged to
           # the currently watched user.
@@ -48,7 +52,7 @@ watched_users:
         alert_after_inactivity: 86400
         alert_period: 86400
         send_on_inactivity:
-          delay_alert: 10
+          delay_alert: 20
           send_user: "bridge-checker"
           send_room: "!some_room_id:my.matrix.homeserver.com"
           send_text: "AAAAAAAAAA"
@@ -56,13 +60,13 @@ watched_users:
         alert_after_inactivity: 86400
         alert_period: 86400
       discord:
-        alert_after_inactivity: 86400
+        alert_after_inactivity: 172800
         alert_period: 86400
       signal:
         alert_after_inactivity: 86400
         alert_period: 86400
         send_on_inactivity:
-          delay_alert: 10
+          delay_alert: 60
           send_user: "bridge-checker"
           send_room: "!some_room_id:my.matrix.homeserver.com"
           send_text: "hmpf"
